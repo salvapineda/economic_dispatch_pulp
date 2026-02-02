@@ -8,14 +8,15 @@ The code implements an Economic Dispatch solver using PuLP with CBC. It takes a 
 
 ## Current Issue
 
-The code **works correctly for most instances** with differences typically under 0.03%, but **for some instances there is a significant difference** (e.g., instance_2027_Q3_59 shows -0.1591% difference) between the PuLP LP solution and Julia's MILP solution, and **I don't understand why**.
+**The results should be identical (or extremely close) to Julia's solution**, since this solver takes the exact same commitment decisions from Julia and only optimizes the dispatch. However:
 
-Expected small differences occur because:
-- **Julia's approach:** Solves Unit Commitment (UC) and Economic Dispatch (ED) jointly as a Mixed-Integer Linear Program (MILP)
-- **This solver:** Takes the fixed commitment from Julia and solves only the dispatch as a Linear Program (LP)
-- The dispatch that's optimal for a fixed commitment may differ slightly from the dispatch in the joint UC+ED solution
+- Most instances show small differences (typically under 0.03%)
+- Some instances show larger differences (e.g., instance_2027_Q3_59 shows -0.1591%)
+- **These differences should NOT occur** - they indicate a bug in the formulation
 
-However, the larger differences in some instances suggest there may be a formulation issue that needs debugging.
+**I'm probably missing some constraints or have an error in the implementation.** The PuLP formulation is supposed to match the Economic Dispatch component from the [UnitCommitment.jl formulation](https://anl-ceeesa.github.io/UnitCommitment.jl/0.4/guides/problem/), but something is not quite right.
+
+**Help needed:** If you can spot what's wrong with the formulation or what constraints might be missing, please open an issue or submit a PR!
 
 ## Files Required
 
@@ -79,13 +80,16 @@ The solver implements:
 - **Load shedding** with penalty costs
 - **Power balance** across all time periods
 
+The formulation follows [UnitCommitment.jl's problem specification](https://anl-ceeesa.github.io/UnitCommitment.jl/0.4/guides/problem/), but there appears to be an error or missing constraint somewhere.
+
 ## Contributing
 
-Pull requests are welcome! Feel free to:
-- Improve code readability
-- Add documentation
-- Test with other instances
-- Report issues or inconsistencies
+**Help wanted!** If you can identify what's wrong with the formulation, please:
+- Open an issue explaining the problem
+- Submit a PR with the fix
+- Point out missing constraints or incorrect implementations
+
+Any help debugging this formulation would be greatly appreciated!
 
 ## License
 
